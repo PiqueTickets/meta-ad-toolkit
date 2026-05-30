@@ -1,6 +1,8 @@
-# meta-ad-toolkit
+# Meta Ad Toolkit for Event & Ticketing Marketers
 
-`meta-ad-toolkit` — Claude Code skills for **event & ticketing marketers** to review Meta (Facebook/Instagram) ad performance and produce ranked, justified recommendations, plus a guarded `/build-ads` path that can mutate the ad account. Apache-2.0. The read skills are suggest-only; only `/build-ads` writes, and only behind an explicit, time-boxed authorization gate. Examples use a fictional brand, `Acme Events` — replace with your own in `references/account-context.md`.
+If you promote live events on Facebook and Instagram, you probably spend a lot of time checking dashboards, wondering whether to shift budget, and hoping you didn't miss something important. This toolkit gives you a thoughtful assistant inside Claude Code: it reads your ad account, summarizes what's working (and what isn't), and suggests what to try next — in plain language, with reasons you can actually act on. It won't change your ads unless you explicitly ask it to, and even then it shows you a preview first.
+
+`meta-ad-toolkit` — Claude Code skills for **event & ticketing marketers** to review Meta (Facebook/Instagram) ad performance and produce ranked, justified recommendations, plus a guarded `/build-ads` path that can mutate the ad account. The read skills are suggest-only; only `/build-ads` writes, and only behind an explicit, time-boxed authorization gate. Examples use a fictional brand, `Acme Events` — replace with your own in `references/account-context.md`.
 
 ## What's in here
 
@@ -14,6 +16,27 @@
 - `/build-ads` — the only skill that mutates your ad account. Drafts a YAML build spec, dry-runs it, then executes after explicit operator approval. Backed by a bundled MCP server at `tools/meta-ads-write/`.
 - `prompts/` — shared report template, recommendation rubric, and `build-spec-schema.md` for `/build-ads`.
 - `references/` — Meta-mechanics explainers (Breakdown Effect, Learning Phase, auction basics), Acme Events-specific context, and `build-safety.md` covering `/build-ads` rules and recovery.
+
+## Meta Pixel & Conversions API (CAPI)
+
+This toolkit reads what Meta already knows about your ad performance. That data is only as good as the signals you send back from your ticketing site — and for most event marketers, that means the **Meta Pixel** and the **Conversions API (CAPI)** working together.
+
+The **Meta Pixel** is a small piece of code on your website that tells Meta when someone views a show page, starts checkout, or completes a ticket purchase. Without it, Meta is mostly guessing: you can still spend budget, but you won't reliably know which ads drove sales, and campaigns optimized for "Purchase" have little to optimize against.
+
+**CAPI** sends the same kinds of events from your server (or ticketing platform) directly to Meta, rather than relying on the visitor's browser. Browsers drop signals — ad blockers, slow page loads, privacy settings, people switching tabs mid-checkout. CAPI catches many of those missed purchases and gives Meta a more complete picture of what's actually converting.
+
+Meta recommends using **both**: the Pixel for real-time browser events, CAPI as a reliable backup. When you send the same event from both places (for example, a completed ticket order), you need **deduplication** so Meta doesn't count it twice. For ticketing sites, the events that matter most are usually `Purchase`, `InitiateCheckout`, and `ViewContent` on show and checkout pages.
+
+**Learn more (official Meta docs):**
+
+- [About the Meta Pixel](https://www.facebook.com/business/help/742478679120153) — what it is and why it matters
+- [Set up and install the Meta Pixel](https://www.facebook.com/business/help/952192354843755) — step-by-step in Events Manager
+- [Meta Pixel developer documentation](https://developers.facebook.com/docs/meta-pixel/) — technical reference and event types
+- [Conversion tracking with the Meta Pixel](https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking/) — standard events like Purchase and InitiateCheckout
+- [About the Conversions API](https://www.facebook.com/business/help/AboutConversionsAPI) — what CAPI is and how it connects to your marketing data
+- [Conversions API developer documentation](https://developers.facebook.com/docs/marketing-api/conversions-api) — setup options and API reference
+- [Best practices for Conversions API](https://www.facebook.com/business/help/308855623839366) — why to run CAPI alongside the Pixel
+- [About deduplication for Pixel and CAPI events](https://www.facebook.com/business/help/823677331451951) — how to avoid double-counting when using both
 
 ## Setup
 
@@ -96,6 +119,3 @@ For the full spec format, see `prompts/build-spec-schema.md`. For safety rules a
 
 - **[Operator guide](docs/operator-guide.md)** — day-to-day usage: cadence, reading reports, acting on recommendations, tuning targets.
 - **[Architecture overview](docs/architecture.md)** — runtime topology, component inventory, suggest-only enforcement layers, extension points.
-- Design spec: [`docs/superpowers/specs/2026-05-07-meta-ad-automation-design.md`](docs/superpowers/specs/2026-05-07-meta-ad-automation-design.md)
-- Implementation plan: [`docs/superpowers/plans/2026-05-07-meta-ad-automation.md`](docs/superpowers/plans/2026-05-07-meta-ad-automation.md)
-- Fixture-capture handoff: [`docs/superpowers/notes/capture-fixtures.md`](docs/superpowers/notes/capture-fixtures.md)
