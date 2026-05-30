@@ -1,0 +1,66 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__meta-ads__health_check",
+      "mcp__meta-ads__get_ad_accounts",
+      "mcp__meta-ads__get_campaigns",
+      "mcp__meta-ads__get_campaign",
+      "mcp__meta-ads__get_insights",
+      "mcp__meta-ads__get_audience_info",
+      "mcp__meta-ads__get_token_info",
+      "mcp__meta-ads__list_ad_sets",
+      "mcp__meta-ads__list_ads",
+      "mcp__meta-ads__list_audiences",
+      "mcp__meta-ads__list_ad_creatives",
+      "mcp__meta-ads__list_creatives",
+      "mcp__meta-ads__compare_performance",
+      "mcp__meta-ads__export_insights",
+      "mcp__meta-ads__diagnose_campaign_readiness",
+      "mcp__meta-ads__check_account_setup",
+      "mcp__meta-ads__create_campaign",
+      "mcp__meta-ads__update_campaign",
+      "mcp__meta-ads__pause_campaign",
+      "mcp__meta-ads__resume_campaign",
+      "mcp__meta-ads__create_ad_set",
+      "mcp__meta-ads__create_ad_creative",
+      "mcp__meta-ads__create_custom_audience",
+      "mcp__meta-ads__create_lookalike_audience",
+      "mcp__meta-ads-write__create_ad",
+      "mcp__meta-ads-write__create_ad_creative",
+      "mcp__meta-ads-write__update_ad",
+      "mcp__meta-ads-write__pause_ad",
+      "mcp__meta-ads-write__resume_ad",
+      "mcp__meta-ads-write__pause_adset",
+      "mcp__meta-ads-write__resume_adset",
+      "mcp__meta-ads-write__update_adset",
+      "mcp__meta-ads-write__upload_video",
+      "mcp__meta-ads-write__upload_image",
+      "mcp__meta-ads-write__delete_ad",
+      "Read",
+      "Write",
+      "Edit",
+      "Bash(mkdir:*)",
+      "Bash(date:*)",
+      "Bash(touch:*)",
+      "Bash(rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__meta-ads__(create|update|pause|resume)_.*|mcp__meta-ads-write__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "find .build-ads-active -mmin -60 2>/dev/null | grep -q . || { echo 'Write tool blocked: /build-ads not active. Run /build-ads to authorize writes.' >&2; exit 1; }"
+          }
+        ]
+      }
+    ]
+  }
+}

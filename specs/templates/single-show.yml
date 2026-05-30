@@ -1,0 +1,268 @@
+# =============================================================================
+# Single-show campaign template
+#
+# Source: SAMPLE COMEDIAN - METRO CITY - 2026-03-07 (4.13× ROAS, $1,490 revenue)
+# Companion reference: references/single-show-campaign-template.md
+#
+# This file is NOT directly executable as-is. It contains <<placeholders>> that
+# must be replaced before the spec validator will accept it. Workflow:
+#
+#   1. Copy this file:
+#        specs/templates/single-show.yml → specs/builds/<YYYY-MM-DD>-<slug>.yml
+#   2. Complete the upstream Ads Manager setup below (campaign, ad set, poster
+#      creative). Today's executor only creates ads into existing ad sets.
+#   3. Find/replace every `<<…>>` token with the per-show value.
+#   4. Run /build-ads (or `node tools/meta-ads-write/dist/scripts/run-spec.js`).
+#
+# =============================================================================
+# UPSTREAM SETUP (Ads Manager UI — do this FIRST, then fill in IDs below)
+# =============================================================================
+#
+# Campaign:
+#   Name              "<<show name>> | <<venue>> | <<show_date_iso>>"
+#   Objective         OUTCOME_SALES
+#   Buying type       AUCTION
+#   Budget level      Ad-set (ABO) — leave campaign-level budget OFF
+#   Special ad cats   None
+#   Status            PAUSED (flip to ACTIVE only after this spec runs clean)
+#
+# Ad set: SALES - <<show name>> - <<venue>> - <<show_date_iso>>
+#   Lifetime budget    <<budget_dollars>> dollars (source: $330 over 10 days
+#                      for ~150-seat theater; scale linearly by capacity)
+#   Schedule           T-10 days from show → day after show
+#   Optimization goal  OFFSITE_CONVERSIONS
+#   Conversion event   Pixel 1000000000000001, custom_event_type=PURCHASE
+#   Bid strategy       LOWEST_COST_WITHOUT_CAP
+#   Billing event      IMPRESSIONS
+#   Attribution        7-day click + 1-day view + 1-day engaged-video-view
+#   Destination type   UNDEFINED
+#   Geo include        25-mile radius around venue lat/lon
+#                        location_types: [home, recent]
+#   Geo exclude        19-mile radius around adjacent metro downtown
+#                        (For a small-market show near a larger metro, exclude
+#                         that metro; if the nearest large metro is far enough
+#                         that audiences don't overlap, no exclusion is needed.)
+#                        location_types: [home, recent]
+#   Age                21–55, with Advantage Audience ON (expands to 18–65)
+#   Custom audiences   120000000000000001  Acme Events - Instagram Followers
+#                      120000000000000002  Acme Events - Facebook Likes & Follows
+#                      120000000000000003  Acme Events - Engagement - Instagram
+#   Detailed interests NONE — let Advantage Audience do the work
+#
+# Once the ad set is created, copy its ID into <<parent_adset_id>> below.
+#
+# Dynamic poster creative (6th ad — must be created manually for now):
+#   The current spec schema only models `kind: video` creatives. The winning
+#   campaign's "DATES - Poster" used asset_feed_spec with two image hashes
+#   (one 9:16 for Stories/Reels, one 4:5 for Feed) and Meta auto-served the
+#   right one per placement. Build it manually in Ads Manager:
+#     - Format: Single image (Advantage+ Creative ON, "Use multiple images")
+#     - Upload two posters: one 1080×1920 vertical, one 1080×1350 (4:5)
+#     - Body copy: same template as the videos below
+#     - CTA: LEARN_MORE → <<landing_url>>
+#   In the source campaign this ad drove 22% of spend → 54% of revenue. Do
+#   not skip it.
+#
+# =============================================================================
+# BUILD SPEC (auto-creates the 5 video ads — fill placeholders + run)
+# =============================================================================
+
+version: 1
+intent: >-
+  <<show name>> at <<venue>> on <<show_date_iso>>: create 5 single-video ads
+  in adset <<parent_adset_id>>, each reusing one clip from the artist's
+  organic IG/TikTok content, all sharing the same body copy, link, and CTA.
+account_id: act_0000000000000000
+page_id: "100000000000001"
+instagram_user_id: "17000000000000001"
+
+# -----------------------------------------------------------------------------
+# Per-show variables — find/replace these tokens before running:
+#
+#   <<show_name>>             e.g.  Sample Comedian
+#   <<venue>>                 e.g.  Downtown Theatre
+#   <<show_date_iso>>         e.g.  2026-03-07
+#   <<show_slug>>             e.g.  sample-comedian-downtown-theatre
+#   <<market_caps>>           e.g.  METRO CITY
+#   <<month_day_caps>>        e.g.  MAR 7
+#   <<show_day_pretty>>       e.g.  Saturday, Mar 7 at 7 PM
+#   <<artist_one_liner>>      e.g.  Sample Comedian's conversational style had the
+#                                   audience in the palm of her hand according
+#                                   to The Oregonian, and her Don't Tell Comedy
+#                                   appearance just hit 50 million views.
+#   <<artist_credits>>        e.g.  She's opened for Jerry Seinfeld, Paula
+#                                   Poundstone, and Maria Bamford across four
+#                                   decades of stand-up.
+#   <<floor_price>>           e.g.  20
+#   <<doors_show_age_line>>   e.g.  Doors 6:30 PM | Show 7 PM\n21+ | Tickets $20
+#   <<landing_url>>           e.g.  https://acmeevents.com/shows/sample-comedian-downtown-theatre
+#   <<parent_adset_id>>       e.g.  120000000000000009  (from upstream setup)
+#   <<video_id_1>> .. <<video_id_5>>
+#                             Five video IDs from the Meta Media Library or
+#                             newly uploaded via mcp__meta-ads-write__upload_video.
+#                             Pick clips that are: (a) the artist's own content,
+#                             (b) under 60 seconds, (c) vertical-ready (9:16).
+#   <<clip_1_label>> .. <<clip_5_label>>
+#                             Short distinguishing label per clip (used only in
+#                             the ad name for debugging — operator-readable).
+#                             e.g. "UNRELEASED-joke", "tattoos-bit", "poster"
+# -----------------------------------------------------------------------------
+
+creates:
+  - kind: ad
+    parent_adset_id: "<<parent_adset_id>>"
+    name: "Ad - DATES - <<show_name>> - <<clip_1_label>>"
+    status: PAUSED
+    creative:
+      kind: video
+      video_id: "<<video_id_1>>"
+      headline: "<<market_caps>> - <<month_day_caps>>"
+      body: |
+        <<market_caps>> - <<month_day_caps>>
+
+        <<artist_one_liner>>
+
+        <<artist_credits>>
+
+        📍 <<venue>>
+
+        📅 <<show_day_pretty>>
+
+        🎟️ Tickets from $<<floor_price>>
+
+        ⏰ One night only
+
+        Tap the link to get your tickets now
+      link_description: "<<doors_show_age_line>>"
+      cta_type: LEARN_MORE
+      link_url: "<<landing_url>>"
+
+  - kind: ad
+    parent_adset_id: "<<parent_adset_id>>"
+    name: "Ad - DATES - <<show_name>> - <<clip_2_label>>"
+    status: PAUSED
+    creative:
+      kind: video
+      video_id: "<<video_id_2>>"
+      headline: "<<market_caps>> - <<month_day_caps>>"
+      body: |
+        <<market_caps>> - <<month_day_caps>>
+
+        <<artist_one_liner>>
+
+        <<artist_credits>>
+
+        📍 <<venue>>
+
+        📅 <<show_day_pretty>>
+
+        🎟️ Tickets from $<<floor_price>>
+
+        ⏰ One night only
+
+        Tap the link to get your tickets now
+      link_description: "<<doors_show_age_line>>"
+      cta_type: LEARN_MORE
+      link_url: "<<landing_url>>"
+
+  - kind: ad
+    parent_adset_id: "<<parent_adset_id>>"
+    name: "Ad - DATES - <<show_name>> - <<clip_3_label>>"
+    status: PAUSED
+    creative:
+      kind: video
+      video_id: "<<video_id_3>>"
+      headline: "<<market_caps>> - <<month_day_caps>>"
+      body: |
+        <<market_caps>> - <<month_day_caps>>
+
+        <<artist_one_liner>>
+
+        <<artist_credits>>
+
+        📍 <<venue>>
+
+        📅 <<show_day_pretty>>
+
+        🎟️ Tickets from $<<floor_price>>
+
+        ⏰ One night only
+
+        Tap the link to get your tickets now
+      link_description: "<<doors_show_age_line>>"
+      cta_type: LEARN_MORE
+      link_url: "<<landing_url>>"
+
+  - kind: ad
+    parent_adset_id: "<<parent_adset_id>>"
+    name: "Ad - DATES - <<show_name>> - <<clip_4_label>>"
+    status: PAUSED
+    creative:
+      kind: video
+      video_id: "<<video_id_4>>"
+      headline: "<<market_caps>> - <<month_day_caps>>"
+      body: |
+        <<market_caps>> - <<month_day_caps>>
+
+        <<artist_one_liner>>
+
+        <<artist_credits>>
+
+        📍 <<venue>>
+
+        📅 <<show_day_pretty>>
+
+        🎟️ Tickets from $<<floor_price>>
+
+        ⏰ One night only
+
+        Tap the link to get your tickets now
+      link_description: "<<doors_show_age_line>>"
+      cta_type: LEARN_MORE
+      link_url: "<<landing_url>>"
+
+  - kind: ad
+    parent_adset_id: "<<parent_adset_id>>"
+    name: "Ad - DATES - <<show_name>> - <<clip_5_label>>"
+    status: PAUSED
+    creative:
+      kind: video
+      video_id: "<<video_id_5>>"
+      headline: "<<market_caps>> - <<month_day_caps>>"
+      body: |
+        <<market_caps>> - <<month_day_caps>>
+
+        <<artist_one_liner>>
+
+        <<artist_credits>>
+
+        📍 <<venue>>
+
+        📅 <<show_day_pretty>>
+
+        🎟️ Tickets from $<<floor_price>>
+
+        ⏰ One night only
+
+        Tap the link to get your tickets now
+      link_description: "<<doors_show_age_line>>"
+      cta_type: LEARN_MORE
+      link_url: "<<landing_url>>"
+
+preflight:
+  - parent_adset_must_exist: "<<parent_adset_id>>"
+
+# =============================================================================
+# DELIBERATE OMISSIONS (counter-lessons from the source campaign)
+# =============================================================================
+#
+# - No URGENCY-72H ad set. The source campaign's urgency push spent $30 with
+#   $0 revenue — same audience and overlapping creative as the main set.
+#   Only add an urgency ad set if you have distinct creative (countdown video,
+#   low-inventory frame, artist direct-to-camera) AND exclude purchasers from
+#   the main set.
+# - No detailed-interest targeting. Custom-audience seeds + Advantage Audience
+#   beat interest targeting in every Acme Events campaign that's tried both.
+# - No CBO. Keep budget at the ad-set level so an urgency push (when warranted)
+#   can be funded on its own timeline without robbing the main set.
+# =============================================================================

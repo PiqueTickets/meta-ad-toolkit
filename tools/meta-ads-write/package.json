@@ -1,0 +1,32 @@
+{
+  "name": "meta-ads-write-mcp",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "dist/src/index.js",
+  "bin": {
+    "meta-ads-write-mcp": "dist/src/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "smoke": "node dist/scripts/smoke.js",
+    "inspect-creative": "node dist/scripts/inspect-creative.js",
+    "list-videos": "node dist/scripts/list-videos.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.3",
+    "yaml": "^2.8.4",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.25.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}
