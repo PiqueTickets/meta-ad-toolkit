@@ -5,7 +5,9 @@
       "args": ["-y", "meta-ads-mcp"],
       "env": {
         "META_ACCESS_TOKEN": "${META_ACCESS_TOKEN}",
-        "META_AD_ACCOUNT_ID": "${META_AD_ACCOUNT_ID}"
+        "META_AD_ACCOUNT_ID": "${META_AD_ACCOUNT_ID}",
+        "META_APP_ID": "${META_APP_ID}",
+        "META_CLIENT_SECRET": "${META_CLIENT_SECRET}"
       }
     },
     "meta-ads-write": {
@@ -13,7 +15,9 @@
       "args": ["./tools/meta-ads-write/dist/src/index.js"],
       "env": {
         "META_ACCESS_TOKEN": "${META_ACCESS_TOKEN}",
-        "META_AD_ACCOUNT_ID": "${META_AD_ACCOUNT_ID}"
+        "META_AD_ACCOUNT_ID": "${META_AD_ACCOUNT_ID}",
+        "META_APP_ID": "${META_APP_ID}",
+        "META_CLIENT_SECRET": "${META_CLIENT_SECRET}"
       }
     }
   }

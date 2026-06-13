@@ -36,6 +36,9 @@
       "mcp__meta-ads-write__upload_video",
       "mcp__meta-ads-write__upload_image",
       "mcp__meta-ads-write__delete_ad",
+      "mcp__meta-ads-write__list_pages",
+      "mcp__meta-ads-write__list_pixels",
+      "mcp__meta-ads-write__pixel_health",
       "Read",
       "Write",
       "Edit",
@@ -53,7 +56,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__meta-ads__(create|update|pause|resume)_.*|mcp__meta-ads-write__.*",
+        "matcher": "mcp__meta-ads__(create|update|pause|resume)_.*|mcp__meta-ads-write__(create|update|pause|resume|delete|upload)_.*",
         "hooks": [
           {
             "type": "command",

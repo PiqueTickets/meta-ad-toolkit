@@ -11,14 +11,17 @@ function makeApi(mockFetch: ReturnType<typeof vi.fn>): MetaApi {
 }
 
 describe("server tool registration", () => {
-  it("registers exactly the 11 expected tools", () => {
+  it("registers exactly the 14 expected tools", () => {
     const names = listToolNames().sort();
     expect(names).toEqual([
       "create_ad",
       "create_ad_creative",
       "delete_ad",
+      "list_pages",
+      "list_pixels",
       "pause_ad",
       "pause_adset",
+      "pixel_health",
       "resume_ad",
       "resume_adset",
       "update_ad",

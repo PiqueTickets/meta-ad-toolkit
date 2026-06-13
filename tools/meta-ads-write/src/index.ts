@@ -22,6 +22,8 @@ import {
 import { updateAdsetTool } from "./tools/update-adset.js";
 import { uploadVideoTool, uploadImageTool } from "./tools/upload-asset.js";
 import { deleteAdTool } from "./tools/delete-ad.js";
+import { listPagesTool, listPixelsTool } from "./tools/list-assets.js";
+import { pixelHealthTool } from "./tools/pixel-health.js";
 
 interface ToolDef<I> {
   name: string;
@@ -42,6 +44,9 @@ const TOOLS: ToolDef<unknown>[] = [
   uploadVideoTool,
   uploadImageTool,
   deleteAdTool,
+  listPagesTool,
+  listPixelsTool,
+  pixelHealthTool,
 ] as ToolDef<unknown>[];
 
 export function listToolNames(): string[] {
