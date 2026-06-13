@@ -25,6 +25,7 @@ Follow these steps in order. Stop and surface the issue if any step fails.
 
 - If the operator provided a spec path: read the file. Skip to step 4.
 - Otherwise: ask the operator for intent if not yet provided. Resolve any campaign / ad-set / ad IDs they mention via `mcp__meta-ads__get_campaign`, `list_ad_sets`, `list_ads`. If `{{copy_from: <ad_id>}}` is implied, fetch that ad's body / headline / CTA via `list_ads` to confirm it exists (don't resolve the placeholder yet).
+- If the spec will need a `page_id`, `instagram_user_id`, or `pixel_id` the operator hasn't supplied, resolve them with the read-only lookups: `mcp__meta-ads-write__list_pages` (Pages + linked Instagram account) and `mcp__meta-ads-write__list_pixels` (account pixels). These are ungated — safe to call before the marker exists. Optionally run `mcp__meta-ads-write__pixel_health` to confirm the pixel is firing `Purchase` before optimizing a conversion campaign against it.
 
 ### 3. Draft the spec
 

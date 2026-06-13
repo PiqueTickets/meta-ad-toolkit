@@ -70,7 +70,7 @@ The cost is correctness risk in arithmetic. The mitigation is the Methodology se
 | `reports/{weekly,monthly,shows}/` | Generated reports, committed to git | Every skill run |
 | `fixtures/*.json` | Captured MCP responses for dry-runs | When the MCP shape changes |
 | `.env` (gitignored) | `META_ACCESS_TOKEN`, `META_AD_ACCOUNT_ID` | Token refresh (~every 60 days) |
-| `tools/meta-ads-write/` | Bundled MCP server providing the 11 gap tools `meta-ads-mcp` doesn't expose | New write tool, schema change, or rate-limit tuning |
+| `tools/meta-ads-write/` | Bundled MCP server providing the 14 gap tools `meta-ads-mcp` doesn't expose (11 write tools + 3 read-only identity/pixel lookups: `list_pages`, `list_pixels`, `pixel_health`) | New write tool, schema change, or rate-limit tuning |
 | `.claude/skills/build-ads/SKILL.md` | The mutation surface skill | Tuning the build-ads procedure |
 | `prompts/build-spec-schema.md` | Canonical YAML build-spec format | Adding a new `kind` or creative shape |
 | `references/build-safety.md` | Operator-facing safety rules and recovery scenarios | Updating recovery procedures |
@@ -102,7 +102,7 @@ The project has two surfaces:
 
 **Read skills** — `/weekly-report`, `/monthly-report`, `/show-report`, `/pacing-check`. Suggest-only by construction. Three independent layers enforce this:
 
-1. The `PreToolUse` hook in `.claude/settings.json` blocks every `mcp__meta-ads__create_*` / `update_*` / `pause_*` / `resume_*` tool and every `mcp__meta-ads-write__*` tool unless the marker file `.build-ads-active` exists and is younger than 1 hour. Read skills never create the marker.
+1. The `PreToolUse` hook in `.claude/settings.json` blocks every `mcp__meta-ads__create_*` / `update_*` / `pause_*` / `resume_*` tool and every *mutating* `mcp__meta-ads-write__*` tool (matched as `create|update|pause|resume|delete|upload`) unless the marker file `.build-ads-active` exists and is younger than 1 hour. Read skills never create the marker. The three read-only `meta-ads-write` lookups (`list_pages`, `list_pixels`, `pixel_health`) are deliberately *not* matched by the hook — they cannot mutate the account, so they stay callable without the marker.
 2. Each read SKILL.md ends with a "What this skill must NOT do" section that enumerates every forbidden write tool by name.
 3. `prompts/recommendation-rubric.md` anti-rule #3 forbids recommending creation of new campaigns/ad sets/ads/creatives; anti-rule #5 forbids recommending "use /build-ads to do X."
 

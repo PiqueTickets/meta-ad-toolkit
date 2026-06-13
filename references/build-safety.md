@@ -13,6 +13,7 @@ Mutations only go through when **all three** are true:
 ## What `/build-ads` will do without asking
 
 - Read `mcp__meta-ads__*` data (campaigns, ad sets, ads, insights) to validate the spec.
+- Call the read-only `meta-ads-write` lookups (`list_pages`, `list_pixels`, `pixel_health`) to resolve a `page_id` / `instagram_user_id` / `pixel_id` or check pixel health. These are not gated by the marker file — they cannot mutate the account.
 - Write the spec file under `specs/builds/`.
 - Write the build log under `reports/builds/`.
 - `touch .build-ads-active` at start, `rm -f .build-ads-active` at end.

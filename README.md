@@ -7,13 +7,13 @@ If you promote live events on Facebook and Instagram, you probably spend a lot o
 ## What's in here
 
 - `.mcp.json` wires the open-source [`brijr/meta-mcp`](https://github.com/brijr/meta-mcp) MCP server (MIT, no third-party membership required).
-- `.claude/settings.json` allow-lists the read tools and puts every Meta **write** tool (`create_*`, `update_*`, `pause_*`, `resume_*`) behind a `PreToolUse` hook — so the read skills can't touch your account, and `/build-ads` only writes after you explicitly arm it (see below).
+- `.claude/settings.json` allow-lists the read tools and puts every Meta **write** tool (`create_*`, `update_*`, `pause_*`, `resume_*`, `delete_*`, `upload_*`) behind a `PreToolUse` hook — so the read skills can't touch your account, and `/build-ads` only writes after you explicitly arm it (see below). Three read-only lookup tools from the bundled write server (`list_pages`, `list_pixels`, `pixel_health`) stay ungated, since they only read identity and pixel data.
 - Four read-only skills under `.claude/skills/`:
   - `/weekly-report` — trailing 7-day account review → `reports/weekly/<date>-weekly.md`
   - `/monthly-report` — trailing calendar month → `reports/monthly/<YYYY-MM>-monthly.md`
   - `/show-report <name-or-id>` — single-show deep dive → `reports/shows/<date>-<slug>.md`
   - `/pacing-check` — quick mid-week health pulse (chat only)
-- `/build-ads` — the only skill that mutates your ad account. Drafts a YAML build spec, dry-runs it, then executes after explicit operator approval. Backed by a bundled MCP server at `tools/meta-ads-write/`.
+- `/build-ads` — the only skill that mutates your ad account. Drafts a YAML build spec, dry-runs it, then executes after explicit operator approval. Backed by a bundled MCP server at `tools/meta-ads-write/`, which also exposes read-only lookups (`list_pages`, `list_pixels`, `pixel_health`) for resolving `page_id` / `instagram_user_id` / `pixel_id` and checking pixel health before a build.
 - `prompts/` — shared report template, recommendation rubric, and `build-spec-schema.md` for `/build-ads`.
 - `references/` — Meta-mechanics explainers (Breakdown Effect, Learning Phase, auction basics), Acme Events-specific context, and `build-safety.md` covering `/build-ads` rules and recovery.
 
@@ -26,6 +26,8 @@ The **Meta Pixel** is a small piece of code on your website that tells Meta when
 **CAPI** sends the same kinds of events from your server (or ticketing platform) directly to Meta, rather than relying on the visitor's browser. Browsers drop signals — ad blockers, slow page loads, privacy settings, people switching tabs mid-checkout. CAPI catches many of those missed purchases and gives Meta a more complete picture of what's actually converting.
 
 Meta recommends using **both**: the Pixel for real-time browser events, CAPI as a reliable backup. When you send the same event from both places (for example, a completed ticket order), you need **deduplication** so Meta doesn't count it twice. For ticketing sites, the events that matter most are usually `Purchase`, `InitiateCheckout`, and `ViewContent` on show and checkout pages.
+
+To confirm your pixel is actually firing those events before you spend against it, the bundled write server exposes two read-only tools: `list_pixels` (find the pixel on your account and its ID) and `pixel_health` (per-event-type counts over the last N days, with a `fires_purchase` flag). Both are ungated — no `/build-ads` arming required. Ask Claude something like "check my pixel health" and it will run them.
 
 **Learn more (official Meta docs):**
 
