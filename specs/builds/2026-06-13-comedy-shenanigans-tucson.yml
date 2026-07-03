@@ -1,0 +1,85 @@
+# =============================================================================
+# Comedy Shenanigans Standup Showcase | The Rock (Tucson, AZ) | 2026-06-21
+#
+# $150 lifetime budget, running the 6 days before the show.
+# Uses the PiqueTickets pixel (PURCHASE conversion) at the ad-set level.
+#
+# NOTE: the bundled executor only creates ADS into an EXISTING ad set.
+# Steps 1-2 below (campaign + ad set, where the pixel/geo/budget/schedule
+# actually live) must be built in Ads Manager FIRST, then paste the ad-set ID
+# into <<parent_adset_id>> and run /build-ads on this file.
+#
+# Resolved IDs:
+#   account_id  act_1129467491491886  (Old Pueblo Comedy Co.)
+#   page_id     508375549028313       (PiqueTickets)
+#   pixel_id    2649799635204929      (PiqueTickets — set on the ad set, below)
+#   instagram   none linked to the Page (Facebook-only unless one is connected)
+#
+# Still to fill before running:
+#   <<parent_adset_id>>   the ad-set ID (created via create_ad_set, below)
+#   <<poster_image>>      local path to a 1080x1350 (4:5) poster, e.g.
+#                         ./assets/comedy-shenanigans-poster.jpg
+# =============================================================================
+# UPSTREAM SETUP (Ads Manager — do this FIRST)
+#
+# Campaign:
+#   Name              "Comedy Shenanigans Standup Showcase | The Rock | 2026-06-21"
+#   Objective         OUTCOME_SALES   (Sales)
+#   Buying type       AUCTION
+#   Budget level      Ad-set (ABO) — campaign budget OFF
+#   Special ad cats   None
+#
+# Ad set: "SALES - Comedy Shenanigans - The Rock - 2026-06-21"
+#   Lifetime budget    $150.00
+#   Schedule           Start 2026-06-15 00:00 MST  →  End 2026-06-21 19:00 MST
+#                      (Arizona = MST/UTC-7 year round)
+#   Optimization goal  OFFSITE_CONVERSIONS  (see note in chat re: low-volume)
+#   Conversion event   PiqueTickets pixel 2649799635204929, custom_event_type = PURCHASE
+#   Bid strategy       LOWEST_COST_WITHOUT_CAP
+#   Billing event      IMPRESSIONS
+#   Geo include        Tucson city (key 2414228), 20-mile radius
+#                        location_types: [home, recent]
+#   Geo exclude        none (Phoenix ~110 mi away — no overlap)
+#   Age                21+  (venue is 21+).  Advantage Audience ON.
+#   Detailed interests NONE — let Advantage Audience expand from the seeds
+# =============================================================================
+
+version: 1
+intent: >-
+  Comedy Shenanigans Standup Showcase at The Rock (Tucson) on 2026-06-21:
+  create one ticket-sales poster ad into adset <<parent_adset_id>>, optimized
+  via the PiqueTickets pixel PURCHASE event.
+account_id: act_1129467491491886
+page_id: "508375549028313"
+
+creates:
+  - kind: ad
+    parent_adset_id: "<<parent_adset_id>>"
+    name: "Ad - SALES - Comedy Shenanigans - poster"
+    status: PAUSED
+    creative:
+      kind: image
+      image_file: "<<poster_image>>"
+      headline: "TUCSON - JUN 21"
+      body: |
+        TUCSON — SUNDAY, JUNE 21
+
+        Comedy Shenanigans brings a night of stand-up to The Rock in
+        downtown Tucson. One lineup, one night, a whole lot of laughs.
+
+        📍 The Rock — 136 N Park Ave, Tucson
+
+        📅 Sunday, June 21 — Doors 6:30 PM, Show 7 PM
+
+        🎟️ Tickets from $10 · 21+
+
+        ⏰ One night only
+
+        Tap the link to grab your tickets before they're gone.
+      cta_type: GET_TICKETS
+      link_url: "https://piquetickets.com/shows/comedy-shenanigans-standup-showcase"
+
+preflight:
+  - parent_adset_must_exist: "<<parent_adset_id>>"
+  - parent_adset_must_be_active: true
+  - assets_must_exist: true
